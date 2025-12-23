@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login básico</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Iniciar sesión</h1>
+
+    <form action="/login" method="POST">
+        <label>Usuario:</label>
+        <input type="text" name="username" required>
+
+        <label>Contraseña:</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>
