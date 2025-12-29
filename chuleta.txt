@@ -4,3 +4,10 @@ pip install sanic sanic-ext jinja2 asyncpg
 pip install aiomysql
 pip freeze > requirements.txt
 pip install -r requirements.txt
+
+
+-----------------
+En el mysql ponemos 
+ALTER TABLE usuarios ADD COLUMN password VARCHAR(100) NOT NULL;
+INSERT INTO usuarios (usuario, descripcion, password)
+VALUES ('admin', 'Administrador del sistema', 'adminpass');

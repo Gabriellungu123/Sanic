@@ -1,26 +1,34 @@
-<!-- templates/incidencias.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Incidencias</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Listado de Incidencias</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Listado de Incidencias</h2>
-    <ul>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Listado de Incidencias</h1>
+
         {% for incidencia in incidencias %}
-            <li>{{ incidencia.usuario }} - {{ incidencia.descripcion }}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span><strong>{{ incidencia.usuario }}</strong> - {{ incidencia.descripcion }}</span>
                 <form method="POST" action="/delete/{{ incidencia.id }}">
-                    <button type="submit">Eliminar</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                 </form>
-            </li>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
-    <h3>Crear nueva incidencia</h3>
-    <form method="POST" action="/insert">
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <input type="text" name="descripcion" placeholder="Descripción" required>
-        <button type="submit">Crear</button>
-    </form>
+
+        <h2 class="mt-5">Crear nueva incidencia</h2>
+        <form method="POST" action="/insert" class="mt-3">
+            <div class="mb-3">
+                <input type="text" name="usuario" class="form-control" placeholder="Usuario" required>
+            </div>
+            <div class="mb-3">
+                <input type="text" name="descripcion" class="form-control" placeholder="Descripción" required>
+            </div>
+            <button type="submit" class="btn btn-success">Crear</button>
+        </form>
+    </div>
 </body>
 </html>

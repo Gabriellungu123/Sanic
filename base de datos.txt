@@ -4,8 +4,23 @@ USE incidencias;
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario VARCHAR(50) NOT NULL,
-    descripcion TEXT NOT NULL
+    password VARCHAR(100) NOT NULL
 );
 
-INSERT INTO usuarios (usuario, descripcion)
-VALUES ('gabriel', 'Incidencia de prueba');
+CREATE TABLE incidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    descripcion TEXT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Insertar un usuario administrador
+INSERT INTO usuarios (usuario, password)
+VALUES ('admin', 'adminpass');
+
+-- Insertar incidencias asociadas al usuario admin
+INSERT INTO incidencias (usuario_id, descripcion)
+VALUES (1, 'Ordenador estropeado');
+
+INSERT INTO incidencias (usuario_id, descripcion)
+VALUES (1, 'Problema con la impresora');
