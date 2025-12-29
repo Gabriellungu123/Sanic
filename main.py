@@ -1,24 +1,34 @@
-from sanic import Sanic
-from sanic.response import text
-from sanic_ext import Extend, render
+# main.py
+import aiomysql
+from config import DB_CONFIG
 
-app = Sanic("MyHelloWorldApp")
+async def connect_db():
+    return await aiomysql.connect(
+        host=DB_CONFIG['DB_HOST'],
+        port=DB_CONFIG['DB_PORT'],
+        user=DB_CONFIG['DB_USER'],
+        password=DB_CONFIG['DB_PASSWORD'],
+        db=DB_CONFIG['DB_NAME']
+    )
 
-# ACTIVAR SANIC-EXT
-Extend(app)
+async def get_incidencias():
+    conn = await connect_db()
+    async with conn.cursor(aiomysql.DictCursor) as cur:
+        await cur.execute("SELECT * FROM usuarios")
+        rows = await cur.fetchall()
+    conn.close()
+    return rows
 
-# Servir estáticos
-app.static("/static", "./static")
+async def insert_incidencia(usuario, descripcion):
+    conn = await connect_db()
+    async with conn.cursor() as cur:
+        await cur.execute("INSERT INTO usuarios (usuario, descripcion) VALUES (%s, %s)", (usuario, descripcion))
+        await conn.commit()
+    conn.close()
 
-@app.get("/")
-async def index(request):
-    return await render("login.html")
-
-@app.post("/login")
-async def login(request):
-    username = request.form.get("username")
-    password = request.form.get("password")
-    return text(f"Usuario: {username}, Contraseña: {password}")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+async def delete_incidencia(id):
+    conn = await connect_db()
+    async with conn.cursor() as cur:
+        await cur.execute("DELETE FROM usuarios WHERE id=%s", (id,))
+        await conn.commit()
+    conn.close()

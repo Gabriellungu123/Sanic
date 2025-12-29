@@ -1,0 +1,26 @@
+<!-- templates/incidencias.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Incidencias</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>Listado de Incidencias</h2>
+    <ul>
+        {% for incidencia in incidencias %}
+            <li>{{ incidencia.usuario }} - {{ incidencia.descripcion }}
+                <form method="POST" action="/delete/{{ incidencia.id }}">
+                    <button type="submit">Eliminar</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <h3>Crear nueva incidencia</h3>
+    <form method="POST" action="/insert">
+        <input type="text" name="usuario" placeholder="Usuario" required>
+        <input type="text" name="descripcion" placeholder="Descripción" required>
+        <button type="submit">Crear</button>
+    </form>
+</body>
+</html>
