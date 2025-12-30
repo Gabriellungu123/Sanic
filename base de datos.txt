@@ -24,3 +24,19 @@ VALUES (1, 'Ordenador estropeado');
 
 INSERT INTO incidencias (usuario_id, descripcion)
 VALUES (1, 'Problema con la impresora');
+
+-- Usuario administrador (ya creado antes)
+INSERT INTO usuarios (usuario, password)
+VALUES ('admin', 'adminpass');
+
+-- Usuario Gabriel
+INSERT INTO usuarios (usuario, password)
+VALUES ('Gabriel', 'clase');
+
+-- Usuario esta
+INSERT INTO usuarios (usuario, password)
+VALUES ('esta', 'esta');
+
+-- Usuario tomate
+INSERT INTO usuarios (usuario, password)
+VALUES ('tomate', 'verdura');

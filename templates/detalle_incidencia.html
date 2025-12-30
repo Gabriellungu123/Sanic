@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalle de incidencia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4">Detalle de incidencia</h2>
+
+        <p><strong>ID:</strong> {{ incidencia.id }}</p>
+        <p><strong>Resumen:</strong> {{ incidencia.resumen }}</p>
+        <p><strong>Servicio:</strong> {{ incidencia.servicio }}</p>
+        <p><strong>Prioridad:</strong> {{ incidencia.prioridad }}</p>
+        <p><strong>Estado:</strong> {{ incidencia.estado }}</p>
+        <p><strong>Usuario asignado:</strong> {{ incidencia.usuario }}</p>
+        <p><strong>Fecha deseada:</strong> {{ incidencia.fecha_deseada }}</p>
+
+        <!-- Formulario para actualizar estado -->
+        <form method="POST" action="/editar/{{ incidencia.id }}">
+            <div class="mb-3">
+                <label class="form-label">Actualizar estado</label>
+                <select name="estado" class="form-select">
+                    <option value="Pendiente" {% if incidencia.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+                    <option value="Asignado" {% if incidencia.estado == "Asignado" %}selected{% endif %}>Asignado</option>
+                    <option value="En curso" {% if incidencia.estado == "En curso" %}selected{% endif %}>En curso</option>
+                    <option value="Resuelto" {% if incidencia.estado == "Resuelto" %}selected{% endif %}>Resuelto</option>
+                    <option value="Cerrado" {% if incidencia.estado == "Cerrado" %}selected{% endif %}>Cerrado</option>
+                    <option value="Cancelado" {% if incidencia.estado == "Cancelado" %}selected{% endif %}>Cancelado</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a href="/incidencias" class="btn btn-secondary">Volver</a>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
