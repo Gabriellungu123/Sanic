@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Error de Login</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <h2>{{ mensaje }}</h2>
-    <a href="/login">Volver al login</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger text-center mt-5">
+    {{ mensaje }}
+</div>
+<a href="/login" class="btn btn-secondary mt-3">Volver al login</a>
+{% endblock %}
