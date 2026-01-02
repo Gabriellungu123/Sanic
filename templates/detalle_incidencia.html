@@ -35,6 +35,17 @@
             </select>
         </div>
 
+        <!-- Campo Grupo dentro del formulario -->
+        <div class="mb-3">
+            <label class="form-label">Actualizar grupo</label>
+            <select name="grupo" class="form-select">
+                <option value="sistemas" {% if incidencia.grupo == "sistemas" %}selected{% endif %}>Sistemas</option>
+                <option value="central" {% if incidencia.grupo == "central" %}selected{% endif %}>Central</option>
+                <option value="puestoN2" {% if incidencia.grupo == "puestoN2" %}selected{% endif %}>Puesto N2</option>
+                <option value="puestoN1" {% if incidencia.grupo == "puestoN1" %}selected{% endif %}>Puesto N1</option>
+            </select>
+        </div>
+
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         <a href="/incidencias" class="btn btn-secondary">Volver</a>
     </form>

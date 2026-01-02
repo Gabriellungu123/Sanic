@@ -6,29 +6,38 @@
 <div class="card shadow-sm p-4">
     <h2 class="mb-4">Crear nueva incidencia</h2>
     <form method="POST" action="/insert">
+        <!-- Resumen -->
         <div class="mb-3">
             <label class="form-label">Resumen</label>
             <input type="text" name="resumen" class="form-control" required>
         </div>
+
+        <!-- Descripción -->
         <div class="mb-3">
             <label class="form-label">Descripción</label>
             <textarea name="descripcion" class="form-control" rows="4" required></textarea>
         </div>
+
+        <!-- Servicio -->
         <div class="mb-3">
             <label class="form-label">Servicio</label>
             <input type="text" name="servicio" class="form-control" required>
         </div>
+
+        <!-- Prioridad -->
         <div class="mb-3">
             <label class="form-label">Prioridad</label>
-            <select name="prioridad" class="form-select">
+            <select name="prioridad" class="form-select" required>
                 <option value="Baja">Baja</option>
                 <option value="Media">Media</option>
                 <option value="Alta">Alta</option>
             </select>
         </div>
+
+        <!-- Estado -->
         <div class="mb-3">
             <label class="form-label">Estado</label>
-            <select name="estado" class="form-select">
+            <select name="estado" class="form-select" required>
                 <option value="Pendiente">Pendiente</option>
                 <option value="Asignado">Asignado</option>
                 <option value="En curso">En curso</option>
@@ -37,19 +46,42 @@
                 <option value="Cancelado">Cancelado</option>
             </select>
         </div>
+
+        <!-- Usuario (de usuarios_general) -->
         <div class="mb-3">
             <label class="form-label">Usuario</label>
-            <select name="usuario" class="form-select">
+            <select name="usuario" class="form-select" required>
                 {% for usuario in usuarios %}
-                <option value="{{ usuario.usuario }}">{{ usuario.usuario }}</option>
+                <option value="{{ usuario.usuario }}">{{ usuario.nombre_completo }} ({{ usuario.departamento }})</option>
                 {% endfor %}
             </select>
         </div>
+
+        <!-- Departamento -->
+        <div class="mb-3">
+            <label class="form-label">Departamento</label>
+            <select name="departamento" class="form-select" required>
+                <option value="Control">Control</option>
+                <option value="Administración">Administración</option>
+                <option value="Recursos Humanos">Recursos Humanos</option>
+                <option value="Finanzas">Finanzas</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Logística">Logística</option>
+                <option value="Compras">Compras</option>
+                <option value="Producción">Producción</option>
+                <option value="Calidad">Calidad</option>
+                <option value="Legal">Legal</option>
+            </select>
+        </div>
+
+        <!-- Fecha deseada -->
         <div class="mb-3">
             <label class="form-label">Fecha deseada</label>
             <input type="date" name="fecha_deseada" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-success">Crear incidencia</button>
+
+        <!-- Botón -->
+        <button type="submit" class="btn btn-success w-100">Crear incidencia</button>
     </form>
 </div>
 {% endblock %}

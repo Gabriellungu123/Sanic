@@ -20,22 +20,22 @@ async def connect_db():
 
 # ------------------- CRUD INCIDENCIAS -------------------
 
-# Insertar incidencia completa (con descripción)
-async def insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada):
+# Insertar incidencia completa (con descripción y departamento)
+async def insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento):
     conn = await connect_db()
     try:
         async with conn.cursor() as cur:
-            # Buscar el id del usuario
-            await cur.execute("SELECT id FROM usuarios WHERE usuario=%s", (usuario,))
+            # Buscar el id del usuario en usuarios_general
+            await cur.execute("SELECT id FROM usuarios_general WHERE usuario=%s", (usuario,))
             result = await cur.fetchone()
             if not result:
                 return False  # Usuario no encontrado
             usuario_id = result[0]
             incidencia_id = generar_id()
             await cur.execute("""
-                INSERT INTO incidencias (id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (incidencia_id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada))
+                INSERT INTO incidencias (id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (incidencia_id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento))
             await conn.commit()
             return True
     finally:
@@ -48,9 +48,10 @@ async def get_incidencias():
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute("""
-                SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada, u.usuario
+                SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada,
+                       i.departamento, u.usuario, u.nombre_completo
                 FROM incidencias i
-                JOIN usuarios u ON i.usuario_id = u.id
+                JOIN usuarios_general u ON i.usuario_id = u.id
             """)
             return await cur.fetchall()
     finally:
@@ -63,9 +64,10 @@ async def get_incidencia_por_id(id):
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute("""
-                SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada, u.usuario
+                SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada,
+                       i.departamento, u.usuario, u.nombre_completo
                 FROM incidencias i
-                JOIN usuarios u ON i.usuario_id = u.id
+                JOIN usuarios_general u ON i.usuario_id = u.id
                 WHERE i.id = %s
             """, (id,))
             row = await cur.fetchone()
@@ -75,7 +77,7 @@ async def get_incidencia_por_id(id):
 
 
 # Actualizar o eliminar incidencia según estado
-async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servicio=None, prioridad=None, estado=None, fecha_deseada=None):
+async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servicio=None, prioridad=None, estado=None, fecha_deseada=None, departamento=None):
     conn = await connect_db()
     try:
         async with conn.cursor() as cur:
@@ -97,6 +99,8 @@ async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servic
                     campos.append("estado=%s"); valores.append(estado)
                 if fecha_deseada:
                     campos.append("fecha_deseada=%s"); valores.append(fecha_deseada)
+                if departamento:
+                    campos.append("departamento=%s"); valores.append(departamento)
 
                 if campos:
                     query = f"UPDATE incidencias SET {', '.join(campos)} WHERE id=%s"
@@ -110,24 +114,39 @@ async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servic
 
 # ------------------- USUARIOS -------------------
 
-# Validar login
+# Validar login (usuarios de informática)
 async def validar_usuario(usuario, password):
     conn = await connect_db()
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
-            await cur.execute("SELECT * FROM usuarios WHERE usuario=%s AND password=%s", (usuario, password))
+            await cur.execute("SELECT * FROM usuarios_informatica WHERE usuario=%s AND password=%s", (usuario, password))
             row = await cur.fetchone()
             return row
     finally:
         conn.close()
 
 
-# Obtener lista de usuarios
-async def get_usuarios():
+# Obtener lista de usuarios de informática
+async def get_usuarios_informatica():
     conn = await connect_db()
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
-            await cur.execute("SELECT id, usuario FROM usuarios")
+            await cur.execute("SELECT id, usuario FROM usuarios_informatica")
+            rows = await cur.fetchall()
+            return rows
+    finally:
+        conn.close()
+
+
+# Obtener lista de usuarios generales
+async def get_usuarios_general(departamento=None):
+    conn = await connect_db()
+    try:
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            if departamento:
+                await cur.execute("SELECT id, usuario, nombre_completo FROM usuarios_general WHERE departamento=%s", (departamento,))
+            else:
+                await cur.execute("SELECT id, usuario, nombre_completo, departamento FROM usuarios_general")
             rows = await cur.fetchall()
             return rows
     finally:
