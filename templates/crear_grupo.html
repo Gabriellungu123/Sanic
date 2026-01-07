@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Crear Grupo{% endblock %}
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h2>Crear nuevo grupo</h2>
+    <form method="POST" action="/crear_grupo">
+        <div class="mb-3">
+            <label class="form-label">Nombre del grupo</label>
+            <input type="text" name="nombre" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Crear</button>
+    </form>
+</div>
+{% endblock %}

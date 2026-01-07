@@ -3,6 +3,7 @@ from sanic.response import redirect
 from sanic_ext import Extend
 from jinja2 import Environment, FileSystemLoader
 from config import DB_CONFIG
+from sanic_session import Session, InMemorySessionInterface
 
 # Crear la aplicación Sanic
 app = Sanic("IncidenciasApp")
@@ -16,6 +17,9 @@ env = Environment(loader=FileSystemLoader("templates"))
 
 # Servir archivos estáticos (CSS, imágenes, etc.)
 app.static("/static", "./static")
+
+# Configuración de sesión
+Session(app, interface=InMemorySessionInterface())
 
 
 # ------------------- RUTAS -------------------
@@ -43,6 +47,7 @@ async def login_post(request):
 
     user = await validar_usuario(usuario, password)
     if user:
+        request.ctx.session["usuario"] = usuario  # guardar usuario en sesión
         return redirect("/incidencias")
     else:
         template = env.get_template("error.html")
@@ -55,8 +60,9 @@ async def incidencias_view(request):
     from main import get_incidencias, get_usuarios_general
     incidencias = await get_incidencias()
     usuarios = await get_usuarios_general()
+    usuario_logeado = request.ctx.session.get("usuario")
     template = env.get_template("incidencias.html")
-    return response.html(template.render(incidencias=incidencias, usuarios=usuarios))
+    return response.html(template.render(incidencias=incidencias, usuarios=usuarios, usuario_logeado=usuario_logeado))
 
 
 # Ruta POST para insertar una nueva incidencia
@@ -73,9 +79,10 @@ async def insert_incidencia_view(request):
     usuario = form.get("usuario")
     fecha_deseada = form.get("fecha_deseada")
     departamento = form.get("departamento")
+    grupo_id = form.get("grupo_id")   # nuevo campo
 
-    if resumen and descripcion and servicio and prioridad and estado and usuario and fecha_deseada and departamento:
-        success = await insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento)
+    if all([resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento, grupo_id]):
+        success = await insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento, grupo_id)
         if not success:
             template = env.get_template("error.html")
             return response.html(template.render(mensaje="Usuario no encontrado en usuarios_general"))
@@ -95,10 +102,11 @@ async def incidencia_detalle_view(request, id):
 # Ruta GET para mostrar el formulario de creación
 @app.get("/crear")
 async def crear_incidencia_view(request):
-    from main import get_usuarios_general
+    from main import get_usuarios_general, get_grupos
     usuarios = await get_usuarios_general()
+    grupos = await get_grupos()
     template = env.get_template("crear_incidencia.html")
-    return response.html(template.render(usuarios=usuarios))
+    return response.html(template.render(usuarios=usuarios, grupos=grupos))
 
 
 # Ruta POST para actualizar o eliminar incidencia
@@ -114,6 +122,7 @@ async def editar_incidencia_post(request, id):
     estado = form.get("estado")
     fecha_deseada = form.get("fecha_deseada")
     departamento = form.get("departamento")
+    grupo_id = form.get("grupo_id")   # opcional para edición
 
     await update_or_delete_incidencia(
         id,
@@ -123,9 +132,52 @@ async def editar_incidencia_post(request, id):
         prioridad=prioridad,
         estado=estado,
         fecha_deseada=fecha_deseada,
-        departamento=departamento
+        departamento=departamento,
+        grupo_id=grupo_id
     )
 
+    return redirect("/incidencias")
+
+
+# ------------------- RUTAS ADMIN -------------------
+
+@app.get("/crear_grupo")
+async def crear_grupo_view(request):
+    if request.ctx.session.get("usuario") != "admin":
+        return response.text("Acceso denegado", status=403)
+    template = env.get_template("crear_grupo.html")
+    return response.html(template.render())
+
+@app.post("/crear_grupo")
+async def crear_grupo_post(request):
+    if request.ctx.session.get("usuario") != "admin":
+        return response.text("Acceso denegado", status=403)
+    from main import crear_grupo
+    nombre = request.form.get("nombre")
+    if nombre:
+        await crear_grupo(nombre)
+    return redirect("/incidencias")
+
+
+@app.get("/asignar_grupo")
+async def asignar_grupo_view(request):
+    if request.ctx.session.get("usuario") != "admin":
+        return response.text("Acceso denegado", status=403)
+    from main import get_usuarios_informatica, get_grupos
+    usuarios = await get_usuarios_informatica()
+    grupos = await get_grupos()
+    template = env.get_template("asignar_grupo.html")
+    return response.html(template.render(usuarios=usuarios, grupos=grupos))
+
+@app.post("/asignar_grupo")
+async def asignar_grupo_post(request):
+    if request.ctx.session.get("usuario") != "admin":
+        return response.text("Acceso denegado", status=403)
+    from main import asignar_usuario_grupo
+    usuario_id = request.form.get("usuario_id")
+    grupo_id = request.form.get("grupo_id")
+    if usuario_id and grupo_id:
+        await asignar_usuario_grupo(usuario_id, grupo_id)
     return redirect("/incidencias")
 
 

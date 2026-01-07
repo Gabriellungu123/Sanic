@@ -6,20 +6,40 @@
 <h1 class="mb-4 text-center">Listado de Incidencias</h1>
 
 {% for incidencia in incidencias %}
-<a href="/incidencia/{{ incidencia.id }}" class="card-link">
+<a href="/incidencia/{{ incidencia.id }}" class="card-link text-decoration-none">
     <div class="card mb-3 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title"><strong>{{ incidencia.usuario }}</strong> - {{ incidencia.resumen }}</h5>
+            <!-- Usuario y resumen -->
+            <h5 class="card-title">
+                <strong>{{ incidencia.usuario }}</strong> - {{ incidencia.resumen }}
+            </h5>
+
+            <!-- Descripción -->
             <p class="card-text">{{ incidencia.descripcion }}</p>
-            <small class="text-muted">
-                {{ incidencia.servicio }} | {{ incidencia.prioridad }} | {{ incidencia.estado }} | {{ incidencia.fecha_deseada }} | Grupo: {{ incidencia.grupo }}
+
+            <!-- Detalles -->
+            <small class="text-muted d-block">
+                Servicio: {{ incidencia.servicio }} |
+                Prioridad: {{ incidencia.prioridad }} |
+                Estado: {{ incidencia.estado }} |
+                Fecha deseada: {{ incidencia.fecha_deseada }} |
+                Grupo: <strong>{{ incidencia.grupo }}</strong>
             </small>
         </div>
     </div>
 </a>
+{% else %}
+<div class="alert alert-info text-center">
+    No hay incidencias registradas.
+</div>
 {% endfor %}
 
 <div class="text-center mt-4">
     <a href="/crear" class="btn btn-success">Crear nueva incidencia</a>
+
+    {% if usuario_logeado == "admin" %}
+        <a href="/crear_grupo" class="btn btn-primary ms-2">Crear grupo</a>
+        <a href="/asignar_grupo" class="btn btn-warning ms-2">Asignar usuarios a grupos</a>
+    {% endif %}
 </div>
 {% endblock %}

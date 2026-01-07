@@ -20,8 +20,8 @@ async def connect_db():
 
 # ------------------- CRUD INCIDENCIAS -------------------
 
-# Insertar incidencia completa (con descripción y departamento)
-async def insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento):
+# Insertar incidencia completa (ahora con grupo_id)
+async def insert_incidencia(resumen, descripcion, servicio, prioridad, estado, usuario, fecha_deseada, departamento, grupo_id):
     conn = await connect_db()
     try:
         async with conn.cursor() as cur:
@@ -33,41 +33,43 @@ async def insert_incidencia(resumen, descripcion, servicio, prioridad, estado, u
             usuario_id = result[0]
             incidencia_id = generar_id()
             await cur.execute("""
-                INSERT INTO incidencias (id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (incidencia_id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento))
+                INSERT INTO incidencias (id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento, grupo_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (incidencia_id, resumen, descripcion, servicio, prioridad, estado, usuario_id, fecha_deseada, departamento, grupo_id))
             await conn.commit()
             return True
     finally:
         conn.close()
 
 
-# Obtener todas las incidencias
+# Obtener todas las incidencias (incluye grupo)
 async def get_incidencias():
     conn = await connect_db()
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute("""
                 SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada,
-                       i.departamento, u.usuario, u.nombre_completo
+                       i.departamento, u.usuario, u.nombre_completo, g.nombre AS grupo
                 FROM incidencias i
                 JOIN usuarios_general u ON i.usuario_id = u.id
+                JOIN grupos g ON i.grupo_id = g.id
             """)
             return await cur.fetchall()
     finally:
         conn.close()
 
 
-# Obtener incidencia por ID
+# Obtener incidencia por ID (incluye grupo)
 async def get_incidencia_por_id(id):
     conn = await connect_db()
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute("""
                 SELECT i.id, i.resumen, i.descripcion, i.servicio, i.prioridad, i.estado, i.fecha_deseada,
-                       i.departamento, u.usuario, u.nombre_completo
+                       i.departamento, u.usuario, u.nombre_completo, g.nombre AS grupo
                 FROM incidencias i
                 JOIN usuarios_general u ON i.usuario_id = u.id
+                JOIN grupos g ON i.grupo_id = g.id
                 WHERE i.id = %s
             """, (id,))
             row = await cur.fetchone()
@@ -76,8 +78,8 @@ async def get_incidencia_por_id(id):
         conn.close()
 
 
-# Actualizar o eliminar incidencia según estado
-async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servicio=None, prioridad=None, estado=None, fecha_deseada=None, departamento=None):
+# Actualizar o eliminar incidencia según estado (añadimos grupo_id opcional)
+async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servicio=None, prioridad=None, estado=None, fecha_deseada=None, departamento=None, grupo_id=None):
     conn = await connect_db()
     try:
         async with conn.cursor() as cur:
@@ -101,6 +103,8 @@ async def update_or_delete_incidencia(id, resumen=None, descripcion=None, servic
                     campos.append("fecha_deseada=%s"); valores.append(fecha_deseada)
                 if departamento:
                     campos.append("departamento=%s"); valores.append(departamento)
+                if grupo_id:
+                    campos.append("grupo_id=%s"); valores.append(grupo_id)
 
                 if campos:
                     query = f"UPDATE incidencias SET {', '.join(campos)} WHERE id=%s"
@@ -149,5 +153,41 @@ async def get_usuarios_general(departamento=None):
                 await cur.execute("SELECT id, usuario, nombre_completo, departamento FROM usuarios_general")
             rows = await cur.fetchall()
             return rows
+    finally:
+        conn.close()
+
+
+# ------------------- GRUPOS -------------------
+
+# Obtener lista de grupos
+async def get_grupos():
+    conn = await connect_db()
+    try:
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            await cur.execute("SELECT id, nombre FROM grupos")
+            rows = await cur.fetchall()
+            return rows
+    finally:
+        conn.close()
+
+
+# Crear un nuevo grupo (solo admin lo usará)
+async def crear_grupo(nombre):
+    conn = await connect_db()
+    try:
+        async with conn.cursor() as cur:
+            await cur.execute("INSERT INTO grupos (nombre) VALUES (%s)", (nombre,))
+            await conn.commit()
+    finally:
+        conn.close()
+
+
+# Asignar usuario de informática a un grupo
+async def asignar_usuario_grupo(usuario_id, grupo_id):
+    conn = await connect_db()
+    try:
+        async with conn.cursor() as cur:
+            await cur.execute("INSERT INTO usuarios_grupo (usuario_id, grupo_id) VALUES (%s, %s)", (usuario_id, grupo_id))
+            await conn.commit()
     finally:
         conn.close()

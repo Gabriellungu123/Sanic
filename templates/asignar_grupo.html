@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Asignar Usuario a Grupo{% endblock %}
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h2>Asignar usuario de informática a grupo</h2>
+    <form method="POST" action="/asignar_grupo">
+        <div class="mb-3">
+            <label class="form-label">Usuario</label>
+            <select name="usuario_id" class="form-select" required>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.usuario }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Grupo</label>
+            <select name="grupo_id" class="form-select" required>
+                {% for grupo in grupos %}
+                <option value="{{ grupo.id }}">{{ grupo.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-warning">Asignar</button>
+    </form>
+</div>
+{% endblock %}
