@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Incidencias{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <h2>{{ titulo_pagina or "Listado de incidencias" }}</h2>
+
+    {% if incidencias %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'codigo' %}activo{% endif %}" href="{{ enlaces_orden.codigo }}">
+                            Codigo
+                            {% if orden_actual == 'codigo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'resumen' %}activo{% endif %}" href="{{ enlaces_orden.resumen }}">
+                            Resumen
+                            {% if orden_actual == 'resumen' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'estado' %}activo{% endif %}" href="{{ enlaces_orden.estado }}">
+                            Estado
+                            {% if orden_actual == 'estado' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'prioridad' %}activo{% endif %}" href="{{ enlaces_orden.prioridad }}">
+                            Prioridad
+                            {% if orden_actual == 'prioridad' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'grupo' %}activo{% endif %}" href="{{ enlaces_orden.grupo }}">
+                            Grupo
+                            {% if orden_actual == 'grupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'semigrupo' %}activo{% endif %}" href="{{ enlaces_orden.semigrupo }}">
+                            Semigrupo
+                            {% if orden_actual == 'semigrupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'cliente' %}activo{% endif %}" href="{{ enlaces_orden.cliente }}">
+                            Cliente
+                            {% if orden_actual == 'cliente' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'tecnico' %}activo{% endif %}" href="{{ enlaces_orden.tecnico }}">
+                            Tecnico
+                            {% if orden_actual == 'tecnico' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>Accion</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for incidencia in incidencias %}
+                    <tr>
+                        <td>
+                            <a class="link-incidencia" href="/incidencia/{{ incidencia.codigo }}">
+                                {{ incidencia.codigo }}
+                            </a>
+                        </td>
+
+                        <td>{{ incidencia.resumen }}</td>
+                        <td>{{ incidencia.estado }}</td>
+                        <td>{{ incidencia.prioridad }}</td>
+                        <td>{{ incidencia.grupo }}</td>
+                        <td>{{ incidencia.semigrupo }}</td>
+                        <td>{{ incidencia.cliente }}</td>
+                        <td>{{ incidencia.tecnico or "Sin asignar" }}</td>
+
+                        <td>
+                            <a class="btn-tabla" href="/incidencia/{{ incidencia.codigo }}">
+                                Ver
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <p class="vacio">No hay incidencias para mostrar.</p>
+
+    {% endif %}
+</section>
+
+{% endblock %}

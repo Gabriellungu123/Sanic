@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle incidencia{% endblock %}
+
+{% block content %}
+
+<section class="detalle-layout">
+
+    <div class="detalle-columna-izquierda">
+
+        <section class="card detalle-card">
+            <h2>{{ incidencia.codigo }}</h2>
+
+            <div class="bloque-resumen">
+                <div>
+                    <span class="label-detalle">Resumen</span>
+                    <p>{{ incidencia.resumen }}</p>
+                </div>
+
+                <div>
+                    <span class="label-detalle">Descripcion</span>
+                    <p>{{ incidencia.descripcion }}</p>
+                </div>
+            </div>
+
+            <div class="datos detalle-datos">
+                <span>Estado: {{ incidencia.estado }}</span>
+                <span>Prioridad: {{ incidencia.prioridad }}</span>
+                <span>Contacto: {{ incidencia.contacto }}</span>
+                <span>Grupo: {{ incidencia.grupo }}</span>
+                <span>Semigrupo: {{ incidencia.semigrupo }}</span>
+                <span>Cliente: {{ incidencia.cliente }}</span>
+                <span>Tecnico: {{ incidencia.tecnico or "Sin asignar" }}</span>
+                <span>Creada: {{ incidencia.fecha_creacion }}</span>
+                <span>Actualizada: {{ incidencia.fecha_actualizacion }}</span>
+            </div>
+
+            {% if puede_modificar %}
+                <form 
+                    method="POST" 
+                    action="/incidencia/{{ incidencia.codigo }}/guardar-cambios" 
+                    class="form-gestion-incidencia"
+                >
+                    <div class="bloque-detalle">
+                        <h3>Gestionar incidencia</h3>
+
+                        <div class="gestion-grid">
+                            <div class="campo">
+                                <label for="estado">Estado</label>
+                                <select name="estado" id="estado" required>
+                                    <option value="Asignado" {% if incidencia.estado == "Asignado" %}selected{% endif %}>Asignado</option>
+                                    <option value="En curso" {% if incidencia.estado == "En curso" %}selected{% endif %}>En curso</option>
+                                    <option value="Pendiente" {% if incidencia.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+                                    <option value="Resuelta" {% if incidencia.estado == "Resuelta" %}selected{% endif %}>Resuelta</option>
+                                    <option value="Cerrado" {% if incidencia.estado == "Cerrado" %}selected{% endif %}>Cerrado</option>
+                                    <option value="Cancelado" {% if incidencia.estado == "Cancelado" %}selected{% endif %}>Cancelado</option>
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label for="grupo-reasignar">Grupo</label>
+                                <select name="grupo_id" id="grupo-reasignar" required>
+                                    {% for grupo in grupos %}
+                                        <option 
+                                            value="{{ grupo.id }}"
+                                            {% if grupo.id == incidencia.grupo_id %}selected{% endif %}
+                                        >
+                                            {{ grupo.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label for="semigrupo-reasignar">Semigrupo</label>
+                                <select name="semigrupo_id" id="semigrupo-reasignar" required>
+                                    {% for semigrupo in semigrupos %}
+                                        <option 
+                                            value="{{ semigrupo.id }}"
+                                            data-grupo="{{ semigrupo.grupo_id }}"
+                                            {% if semigrupo.id == incidencia.semigrupo_id %}selected{% endif %}
+                                        >
+                                            {{ semigrupo.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label for="tecnico-reasignar">Tecnico</label>
+                                <select name="tecnico_id" id="tecnico-reasignar">
+                                    <option value="">Sin tecnico asignado</option>
+
+                                    {% for tecnico in tecnicos %}
+                                        <option 
+                                            value="{{ tecnico.id }}"
+                                            data-grupo="{{ tecnico.grupo_id }}"
+                                            {% if tecnico.id == incidencia.tecnico_id %}selected{% endif %}
+                                        >
+                                            {{ tecnico.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="campo campo-comentario-cambio" id="campo-comentario-cambio" style="display: none;">
+                            <label for="comentario-cambio">Comentario del cambio</label>
+                            <textarea
+                                name="comentario"
+                                id="comentario-cambio"
+                                placeholder="Escribe el motivo del cambio de estado..."
+                            ></textarea>
+                        </div>
+
+                        <div class="acciones-finales">
+                            <button type="submit">Guardar cambios</button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <p class="texto-suave aviso-comentario">
+                    Puedes consultar esta incidencia, pero no puedes modificar su estado ni reasignarla.
+                </p>
+            {% endif %}
+        </section>
+
+    </div>
+
+    <div class="detalle-columna-derecha">
+
+        <section class="card comentarios-card">
+            <h2>Comentarios</h2>
+
+            {% if comentarios %}
+                <div class="comentarios">
+                    {% for comentario in comentarios %}
+                        <div class="comentario">
+                            <strong>{{ comentario.usuario }} · {{ comentario.rol }}</strong>
+                            <p>{{ comentario.comentario }}</p>
+                            <span>{{ comentario.fecha_creacion }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="vacio">Todavia no hay comentarios.</p>
+            {% endif %}
+
+            {% if puede_comentar %}
+                <form 
+                    method="POST" 
+                    action="/incidencia/{{ incidencia.codigo }}/comentario" 
+                    class="form-comentario"
+                >
+                    <label for="nuevo-comentario">Nuevo comentario</label>
+
+                    <textarea
+                        name="comentario"
+                        id="nuevo-comentario"
+                        placeholder="Escribe un comentario..."
+                        required
+                    ></textarea>
+
+                    <button type="submit">Anadir comentario</button>
+                </form>
+            {% else %}
+                <p class="texto-suave aviso-comentario">
+                    Puedes leer los comentarios, pero no puedes anadir nuevos comentarios en esta incidencia.
+                </p>
+            {% endif %}
+        </section>
+
+    </div>
+
+</section>
+
+<script src="/static/js/detalle_incidencia.js"></script>
+
+{% endblock %}

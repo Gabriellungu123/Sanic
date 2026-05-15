@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <div class="titulo-listado">
+        <div>
+            <h2>Usuarios</h2>
+
+            {% if usuario.rol == "superadmin" %}
+                <p class="texto-suave">
+                    Como superadmin puedes crear admins, tecnicos y clientes. Tambien puedes cambiar grupo y semigrupo.
+                </p>
+            {% elif usuario.rol == "admin" %}
+                <p class="texto-suave">
+                    Como admin puedes crear tecnicos para tu grupo y usuarios cliente.
+                </p>
+            {% elif usuario.rol == "tecnico" %}
+                <p class="texto-suave">
+                    Como tecnico solo puedes crear usuarios cliente.
+                </p>
+            {% endif %}
+        </div>
+
+        <span class="badge">Total: {{ usuarios | length }}</span>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Crear usuario</h2>
+
+    <form method="POST" action="/crear-usuario" class="formulario">
+        <div class="campo">
+            <label for="nombre">Nombre completo</label>
+            <input 
+                type="text" 
+                id="nombre" 
+                name="nombre" 
+                placeholder="Ej: Pedro Sanchez"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="email">Email</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="Ej: usuario@test.com"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="password">Contrasena</label>
+            <input 
+                type="text" 
+                id="password" 
+                name="password" 
+                value="1234"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="rol">Rol</label>
+            <select id="rol" name="rol" required>
+                {% if usuario.rol == "superadmin" %}
+                    <option value="admin">Admin</option>
+                    <option value="tecnico">Tecnico</option>
+                    <option value="cliente">Cliente</option>
+                {% elif usuario.rol == "admin" %}
+                    <option value="tecnico">Tecnico</option>
+                    <option value="cliente">Cliente</option>
+                {% elif usuario.rol == "tecnico" %}
+                    <option value="cliente">Cliente</option>
+                {% endif %}
+            </select>
+        </div>
+
+        {% if usuario.rol == "superadmin" %}
+            <div class="campo campo-grupo">
+                <label for="grupo_id">Grupo</label>
+                <select id="grupo_id" name="grupo_id">
+                    <option value="">Sin grupo</option>
+                    {% for grupo in grupos %}
+                        <option value="{{ grupo.id }}">
+                            {{ grupo.codigo }} · {{ grupo.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        {% if usuario.rol in ["superadmin", "admin"] %}
+            <div class="campo campo-semigrupo">
+                <label for="semigrupo_id">Semigrupo</label>
+                <select id="semigrupo_id" name="semigrupo_id">
+                    <option value="">Sin semigrupo</option>
+                    {% for semigrupo in semigrupos %}
+                        <option 
+                            value="{{ semigrupo.id }}"
+                            data-grupo="{{ semigrupo.grupo_id }}"
+                        >
+                            {{ semigrupo.codigo }} · {{ semigrupo.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        <button type="submit">Crear usuario</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Listado de usuarios</h2>
+
+    {% if usuarios %}
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'nombre' %}activo{% endif %}" href="{{ enlaces_orden.nombre }}">
+                            Nombre
+                            {% if orden_actual == 'nombre' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'username' %}activo{% endif %}" href="{{ enlaces_orden.username }}">
+                            Usuario
+                            {% if orden_actual == 'username' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'email' %}activo{% endif %}" href="{{ enlaces_orden.email }}">
+                            Email
+                            {% if orden_actual == 'email' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'rol' %}activo{% endif %}" href="{{ enlaces_orden.rol }}">
+                            Rol
+                            {% if orden_actual == 'rol' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'grupo' %}activo{% endif %}" href="{{ enlaces_orden.grupo }}">
+                            Grupo
+                            {% if orden_actual == 'grupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'semigrupo' %}activo{% endif %}" href="{{ enlaces_orden.semigrupo }}">
+                            Semigrupo
+                            {% if orden_actual == 'semigrupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+
+                    {% if usuario.rol == "superadmin" %}
+                        <th>Editar asignacion</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for u in usuarios %}
+                    <tr>
+                        <td>{{ u.nombre }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.rol }}</td>
+                        <td>{{ u.grupo or "Sin grupo" }}</td>
+                        <td>{{ u.semigrupo or "Sin semigrupo" }}</td>
+
+                        {% if usuario.rol == "superadmin" %}
+                            <td>
+                                {% if u.rol in ["admin", "tecnico"] %}
+                                    <form 
+                                        method="POST" 
+                                        action="/usuario/{{ u.id }}/actualizar-asignacion" 
+                                        class="form-asignacion-usuario"
+                                    >
+                                        <select name="grupo_id" class="grupo-asignacion" required>
+                                            {% for grupo in grupos %}
+                                                <option 
+                                                    value="{{ grupo.id }}"
+                                                    {% if u.grupo_id == grupo.id %}selected{% endif %}
+                                                >
+                                                    {{ grupo.nombre }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <select name="semigrupo_id" class="semigrupo-asignacion" required>
+                                            {% for semigrupo in semigrupos %}
+                                                <option 
+                                                    value="{{ semigrupo.id }}"
+                                                    data-grupo="{{ semigrupo.grupo_id }}"
+                                                    {% if u.semigrupo_id == semigrupo.id %}selected{% endif %}
+                                                >
+                                                    {{ semigrupo.nombre }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <button type="submit" class="btn-tabla">
+                                            Guardar
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    No aplica
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="vacio">No hay usuarios para mostrar.</p>
+    {% endif %}
+</section>
+
+<script src="/static/js/usuarios.js"></script>
+
+{% endblock %}

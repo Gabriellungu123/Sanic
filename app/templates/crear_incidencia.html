@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Crear incidencia{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <h2>Nueva incidencia</h2>
+
+    <p class="texto-suave">
+        La incidencia se creara inicialmente en estado Pendiente y sin tecnico asignado.
+    </p>
+
+    <form class="formulario" method="POST" action="/crear-incidencia">
+
+        {% if usuario.rol in ["superadmin", "admin", "tecnico"] %}
+            <div class="campo campo-descripcion">
+                <label for="solicitante">Solicitante</label>
+
+                <input 
+                    list="lista-solicitantes"
+                    id="solicitante"
+                    name="solicitante"
+                    placeholder="Escribe el nombre del usuario solicitante"
+                    required
+                >
+
+                <datalist id="lista-solicitantes">
+                    {% for solicitante in solicitantes %}
+                        <option 
+                            value="{{ solicitante.id }} - {{ solicitante.nombre }} - {{ solicitante.username }} - {{ solicitante.rol }}{% if solicitante.grupo %} - {{ solicitante.grupo }}{% endif %}{% if solicitante.semigrupo %} - {{ solicitante.semigrupo }}{% endif %}">
+                        </option>
+                    {% endfor %}
+                </datalist>
+
+                <p class="texto-suave ayuda-campo">
+                    Empieza a escribir el nombre, usuario o rol para filtrar la lista.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="campo">
+            <label for="resumen">Resumen</label>
+            <input 
+                type="text" 
+                id="resumen" 
+                name="resumen" 
+                placeholder="Ej: No funciona el ordenador"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="contacto">Contacto</label>
+            <input 
+                type="text" 
+                id="contacto" 
+                name="contacto" 
+                placeholder="Ej: correo, telefono o persona de contacto"
+                required
+            >
+        </div>
+
+        <div class="campo campo-descripcion">
+            <label for="descripcion">Descripcion</label>
+            <textarea 
+                id="descripcion" 
+                name="descripcion" 
+                placeholder="Explica que problema hay..."
+                required
+            ></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="prioridad">Prioridad</label>
+            <select id="prioridad" name="prioridad" required>
+                <option value="Baja">Baja</option>
+                <option value="Media" selected>Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="grupo_id">Grupo</label>
+            <select id="grupo_id" name="grupo_id" required>
+                {% for grupo in grupos %}
+                    <option value="{{ grupo.id }}">
+                        {{ grupo.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="semigrupo_id">Semigrupo</label>
+            <select id="semigrupo_id" name="semigrupo_id" required>
+                {% for semigrupo in semigrupos %}
+                    <option 
+                        value="{{ semigrupo.id }}"
+                        data-grupo="{{ semigrupo.grupo_id }}"
+                    >
+                        {{ semigrupo.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Crear incidencia</button>
+
+    </form>
+</section>
+
+<script src="/static/js/crear_incidencia.js"></script>
+
+{% endblock %}

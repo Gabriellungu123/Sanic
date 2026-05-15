@@ -1,0 +1,302 @@
+USUARIOS DEL PROYECTO - GESTOR DE INCIDENCIAS
+
+Contrasena para todos los usuarios: 1234
+
+============================================================
+1. ADMINISTRADORES POR GRUPO
+============================================================
+
+GRUPO: Informatica
+- Carlos Martin
+  Usuario: carlos.martin
+  Email: admin.info1@test.com
+  Rol: admin
+
+- Laura Gomez
+  Usuario: laura.gomez
+  Email: admin.info2@test.com
+  Rol: admin
+
+
+GRUPO: Recursos Humanos
+- Alberto Cano
+  Usuario: alberto.cano
+  Email: admin.rrhh1@test.com
+  Rol: admin
+
+- Nuria Silva
+  Usuario: nuria.silva
+  Email: admin.rrhh2@test.com
+  Rol: admin
+
+
+GRUPO: Mantenimiento
+- Miguel Ortega
+  Usuario: miguel.ortega
+  Email: admin.mant1@test.com
+  Rol: admin
+
+- Elena Navarro
+  Usuario: elena.navarro
+  Email: admin.mant2@test.com
+  Rol: admin
+
+
+GRUPO: Administracion
+- Ruben Gil
+  Usuario: ruben.gil
+  Email: admin.adm1@test.com
+  Rol: admin
+
+- Beatriz Vega
+  Usuario: beatriz.vega
+  Email: admin.adm2@test.com
+  Rol: admin
+
+
+GRUPO: Seguridad
+- Antonio Vega
+  Usuario: antonio.vega
+  Email: admin.seg1@test.com
+  Rol: admin
+
+- Clara Pardo
+  Usuario: clara.pardo
+  Email: admin.seg2@test.com
+  Rol: admin
+
+
+============================================================
+2. TECNICOS Y SEMIGRUPOS RECOMENDADOS
+============================================================
+
+NOTA:
+En la base de datos los tecnicos pertenecen a un GRUPO, no directamente a un semigrupo.
+Esta lista reparte tecnicos por semigrupo para que puedas probar mejor la aplicacion.
+
+------------------------------------------------------------
+GRUPO: Informatica
+------------------------------------------------------------
+
+SEMIGRUPO: Soporte
+- Daniel Ruiz
+  Usuario: daniel.ruiz
+  Email: tec.info1@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Redes
+- Marta Lopez
+  Usuario: marta.lopez
+  Email: tec.info2@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Sistemas
+- Sergio Perez
+  Usuario: sergio.perez
+  Email: tec.info3@test.com
+  Rol: tecnico
+
+TECNICOS EXTRA DEL GRUPO INFORMATICA
+- Ana Torres
+  Usuario: ana.torres
+  Email: tec.info4@test.com
+  Rol: tecnico
+
+- Javier Molina
+  Usuario: javier.molina
+  Email: tec.info5@test.com
+  Rol: tecnico
+
+
+------------------------------------------------------------
+GRUPO: Recursos Humanos
+------------------------------------------------------------
+
+SEMIGRUPO: Contratacion
+- Raul Moreno
+  Usuario: raul.moreno
+  Email: tec.rrhh1@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Nominas
+- Lucia Ramos
+  Usuario: lucia.ramos
+  Email: tec.rrhh2@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Formacion
+- Hugo Santos
+  Usuario: hugo.santos
+  Email: tec.rrhh3@test.com
+  Rol: tecnico
+
+TECNICOS EXTRA DEL GRUPO RECURSOS HUMANOS
+- Irene Castro
+  Usuario: irene.castro
+  Email: tec.rrhh4@test.com
+  Rol: tecnico
+
+- Pablo Vidal
+  Usuario: pablo.vidal
+  Email: tec.rrhh5@test.com
+  Rol: tecnico
+
+
+------------------------------------------------------------
+GRUPO: Mantenimiento
+------------------------------------------------------------
+
+SEMIGRUPO: Electricidad
+- Mario Vega
+  Usuario: mario.vega
+  Email: tec.mant1@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Climatizacion
+- Sara Dominguez
+  Usuario: sara.dominguez
+  Email: tec.mant2@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Limpieza
+- Adrian Romero
+  Usuario: adrian.romero
+  Email: tec.mant3@test.com
+  Rol: tecnico
+
+TECNICOS EXTRA DEL GRUPO MANTENIMIENTO
+- Cristina Leon
+  Usuario: cristina.leon
+  Email: tec.mant4@test.com
+  Rol: tecnico
+
+- David Herrero
+  Usuario: david.herrero
+  Email: tec.mant5@test.com
+  Rol: tecnico
+
+
+------------------------------------------------------------
+GRUPO: Administracion
+------------------------------------------------------------
+
+SEMIGRUPO: Facturacion
+- Jorge Marin
+  Usuario: jorge.marin
+  Email: tec.adm1@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Compras
+- Paula Medina
+  Usuario: paula.medina
+  Email: tec.adm2@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Archivo
+- Ivan Fuentes
+  Usuario: ivan.fuentes
+  Email: tec.adm3@test.com
+  Rol: tecnico
+
+TECNICOS EXTRA DEL GRUPO ADMINISTRACION
+- Noelia Rios
+  Usuario: noelia.rios
+  Email: tec.adm4@test.com
+  Rol: tecnico
+
+- Oscar Campos
+  Usuario: oscar.campos
+  Email: tec.adm5@test.com
+  Rol: tecnico
+
+
+------------------------------------------------------------
+GRUPO: Seguridad
+------------------------------------------------------------
+
+SEMIGRUPO: Control de acceso
+- Marcos Soler
+  Usuario: marcos.soler
+  Email: tec.seg1@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Camaras
+- Teresa Roman
+  Usuario: teresa.roman
+  Email: tec.seg2@test.com
+  Rol: tecnico
+
+SEMIGRUPO: Emergencias
+- Victor Nieto
+  Usuario: victor.nieto
+  Email: tec.seg3@test.com
+  Rol: tecnico
+
+TECNICOS EXTRA DEL GRUPO SEGURIDAD
+- Rocio Arias
+  Usuario: rocio.arias
+  Email: tec.seg4@test.com
+  Rol: tecnico
+
+- Diego Pastor
+  Usuario: diego.pastor
+  Email: tec.seg5@test.com
+  Rol: tecnico
+
+
+============================================================
+3. CLIENTES
+============================================================
+
+Los clientes no pertenecen a ningun grupo concreto.
+Pueden crear incidencias y ver las incidencias que ellos han creado.
+
+- Cliente Uno
+  Usuario: cliente.uno
+  Email: cliente1@test.com
+  Rol: cliente
+
+- Cliente Dos
+  Usuario: cliente.dos
+  Email: cliente2@test.com
+  Rol: cliente
+
+- Cliente Tres
+  Usuario: cliente.tres
+  Email: cliente3@test.com
+  Rol: cliente
+
+- Cliente Cuatro
+  Usuario: cliente.cuatro
+  Email: cliente4@test.com
+  Rol: cliente
+
+- Cliente Cinco
+  Usuario: cliente.cinco
+  Email: cliente5@test.com
+  Rol: cliente
+
+
+============================================================
+4. RESUMEN RAPIDO
+============================================================
+
+Total grupos: 5
+Total semigrupos: 15
+Total admins: 10
+Total tecnicos: 25
+Total clientes: 5
+
+Usuarios recomendados para probar:
+
+Admin Informatica:
+- Usuario: carlos.martin
+- Contrasena: 1234
+
+Tecnico Informatica:
+- Usuario: daniel.ruiz
+- Contrasena: 1234
+
+Cliente:
+- Usuario: cliente.uno
+- Contrasena: 1234

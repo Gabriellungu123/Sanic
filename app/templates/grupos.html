@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Grupos{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <div class="titulo-listado">
+        <div>
+            <h2>Grupos y semigrupos</h2>
+            <p class="texto-suave">
+                Gestion de grupos, semigrupos y administradores.
+            </p>
+        </div>
+
+        <span class="badge">Total grupos: {{ grupos | length }}</span>
+    </div>
+</section>
+
+{% if usuario.rol == "admin" %}
+
+<section class="card">
+    <h2>Crear nuevo grupo</h2>
+
+    <p class="texto-suave">
+        Para crear un grupo tienes que seleccionar un tecnico existente.
+        Ese tecnico pasara automaticamente a ser admin del nuevo grupo.
+    </p>
+
+    <form method="POST" action="/crear-grupo" class="formulario">
+        <div class="campo">
+            <label for="nombre-grupo">Nombre del grupo</label>
+            <input 
+                type="text" 
+                id="nombre-grupo" 
+                name="nombre" 
+                placeholder="Ej: Desarrollo"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="tecnico-grupo">Tecnico que sera admin</label>
+            <select id="tecnico-grupo" name="tecnico_id" required>
+                <option value="">Selecciona un tecnico</option>
+
+                {% for tecnico in tecnicos %}
+                    <option value="{{ tecnico.id }}">
+                        {{ tecnico.nombre }} · {{ tecnico.grupo or "Sin grupo" }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Crear grupo</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Crear semigrupo</h2>
+
+    <p class="texto-suave">
+        Un semigrupo siempre debe estar dentro de un grupo.
+    </p>
+
+    <form method="POST" action="/crear-semigrupo" class="formulario">
+        <div class="campo">
+            <label for="nombre-semigrupo">Nombre del semigrupo</label>
+            <input 
+                type="text" 
+                id="nombre-semigrupo" 
+                name="nombre" 
+                placeholder="Ej: Backend"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="grupo-semigrupo">Grupo al que pertenece</label>
+            <select id="grupo-semigrupo" name="grupo_id" required>
+                <option value="">Selecciona un grupo</option>
+
+                {% for grupo in grupos %}
+                    <option value="{{ grupo.id }}">
+                        {{ grupo.codigo }} · {{ grupo.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Crear semigrupo</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Ascender tecnico a admin</h2>
+
+    <p class="texto-suave">
+        Solo puedes ascender tecnicos que pertenezcan a tu mismo grupo.
+    </p>
+
+    {% if tecnicos_mi_grupo %}
+        <form method="POST" action="/ascender-tecnico" class="formulario">
+            <div class="campo">
+                <label for="tecnico-admin">Tecnico del grupo</label>
+                <select id="tecnico-admin" name="tecnico_id" required>
+                    <option value="">Selecciona un tecnico</option>
+
+                    {% for tecnico in tecnicos_mi_grupo %}
+                        <option value="{{ tecnico.id }}">
+                            {{ tecnico.nombre }} · {{ tecnico.grupo or "Sin grupo" }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit">Ascender a admin</button>
+        </form>
+    {% else %}
+        <p class="vacio">
+            No hay tecnicos disponibles en tu grupo para ascender.
+        </p>
+    {% endif %}
+</section>
+
+{% endif %}
+
+<section class="card">
+    <h2>Administradores</h2>
+
+    {% if admins %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Profesion</th>
+                    <th>Grupo</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.nombre }}</td>
+                        <td>{{ admin.username }}</td>
+                        <td>Admin</td>
+                        <td>{{ admin.grupo or "Sin grupo" }}</td>
+                        <td>{{ admin.email }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="vacio">No hay administradores para mostrar.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Tecnicos</h2>
+
+    {% if tecnicos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Profesion</th>
+                    <th>Semigrupos</th>
+                    <th>Grupo</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for tecnico in tecnicos %}
+                    <tr>
+                        <td>{{ tecnico.nombre }}</td>
+                        <td>{{ tecnico.username }}</td>
+                        <td>Tecnico</td>
+                        <td>{{ tecnico.semigrupos or "Sin incidencias asignadas" }}</td>
+                        <td>{{ tecnico.grupo or "Sin grupo" }}</td>
+                        <td>{{ tecnico.email }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="vacio">No hay tecnicos para mostrar.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Listado de grupos</h2>
+
+    {% if grupos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Grupo</th>
+                    <th>Semigrupos</th>
+                    <th>Usuarios</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for grupo in grupos %}
+                    <tr>
+                        <td>{{ grupo.codigo }}</td>
+                        <td>{{ grupo.nombre }}</td>
+                        <td>{{ grupo.total_semigrupos }}</td>
+                        <td>{{ grupo.total_usuarios }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="vacio">No hay grupos creados.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Listado de semigrupos</h2>
+
+    {% if semigrupos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Semigrupo</th>
+                    <th>Grupo</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for semigrupo in semigrupos %}
+                    <tr>
+                        <td>{{ semigrupo.codigo }}</td>
+                        <td>{{ semigrupo.nombre }}</td>
+                        <td>{{ semigrupo.grupo }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="vacio">No hay semigrupos creados.</p>
+    {% endif %}
+</section>
+
+{% endblock %}

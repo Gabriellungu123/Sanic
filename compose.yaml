@@ -1,19 +1,40 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql_incidencias
+    container_name: incidencias_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: incidencias
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: adminpass
+      MYSQL_DATABASE: incidencias_db
+      MYSQL_USER: sanic_user
+      MYSQL_PASSWORD: sanic_password
+      MYSQL_ROOT_PASSWORD: root_password
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+    command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: incidencias_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  web:
+    build: .
+    container_name: incidencias_web
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
 
 volumes:
   mysql_data:

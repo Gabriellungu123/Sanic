@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Gestor de Incidencias{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="header">
+    <div>
+        <h1>Gestor de Incidencias</h1>
+        <p>Proyecto con Sanic</p>
+
+        {% if usuario %}
+            <p class="usuario-logueado">
+                Sesion iniciada como {{ usuario.nombre }} · {{ usuario.rol }}
+
+                {% if usuario.grupo %}
+                    · {{ usuario.grupo }}
+                {% endif %}
+
+                {% if usuario.semigrupo %}
+                    · {{ usuario.semigrupo }}
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <nav class="menu">
+        {% if usuario %}
+            <a href="/">Inicio</a>
+            <a href="/crear-incidencia">Nueva incidencia</a>
+
+            {% if usuario.rol != "cliente" %}
+                <a href="/incidencias-grupo">Incidencias de mi grupo</a>
+            {% endif %}
+
+            <a href="/incidencias-archivadas">Archivadas</a>
+
+            {% if usuario.rol in ["superadmin", "admin"] %}
+                <a href="/grupos">Grupos</a>
+            {% endif %}
+
+            {% if usuario.rol in ["superadmin", "admin", "tecnico"] %}
+                <a href="/usuarios">Usuarios</a>
+            {% endif %}
+
+            <a href="/logout">Cerrar sesion</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="container">
+
+    {% if usuario %}
+        <section class="card buscador-card">
+            <form method="POST" action="/buscar-incidencia" class="buscador">
+                <input 
+                    type="text" 
+                    name="codigo" 
+                    placeholder="Buscar por codigo. Ej: INC-A1B2C3" 
+                    required
+                >
+                <button type="submit">Buscar</button>
+            </form>
+        </section>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+<footer class="footer">
+    Proyecto de incidencias · Sanic Framework
+</footer>
+
+</body>
+</html>
