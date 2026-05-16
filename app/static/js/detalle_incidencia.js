@@ -30,6 +30,7 @@ if (selectEstado) {
     actualizarComentarioCambio();
 }
 
+
 const grupoGestion = document.getElementById("grupo_id");
 const semigrupoGestion = document.getElementById("semigrupo_id");
 const tecnicoGestion = document.getElementById("tecnico_id");
@@ -39,23 +40,37 @@ if (grupoGestion && semigrupoGestion) {
 
     function filtrarSemigruposGestion() {
         const grupoSeleccionado = grupoGestion.value;
+        const valorActual = semigrupoGestion.value;
 
         semigrupoGestion.innerHTML = "";
 
-        const semigruposFiltrados = opcionesSemigrupoGestion.filter(function(opcion) {
-            return opcion.dataset.grupo === grupoSeleccionado;
+        const opcionVaciaOriginal = opcionesSemigrupoGestion.find(function(opcion) {
+            return opcion.value === "";
         });
 
-        semigruposFiltrados.forEach(function(opcion) {
-            semigrupoGestion.appendChild(opcion.cloneNode(true));
+        if (opcionVaciaOriginal) {
+            semigrupoGestion.appendChild(opcionVaciaOriginal.cloneNode(true));
+        }
+
+        opcionesSemigrupoGestion.forEach(function(opcion) {
+            if (opcion.value !== "" && opcion.dataset.grupo === grupoSeleccionado) {
+                semigrupoGestion.appendChild(opcion.cloneNode(true));
+            }
         });
 
-        if (semigrupoGestion.options.length > 0) {
-            semigrupoGestion.selectedIndex = 0;
+        const existeValorActual = Array.from(semigrupoGestion.options).some(function(opcion) {
+            return opcion.value === valorActual;
+        });
+
+        if (existeValorActual) {
+            semigrupoGestion.value = valorActual;
+        } else {
+            semigrupoGestion.value = "";
         }
     }
 
     grupoGestion.addEventListener("change", filtrarSemigruposGestion);
+    filtrarSemigruposGestion();
 }
 
 if (grupoGestion && tecnicoGestion) {
@@ -63,6 +78,7 @@ if (grupoGestion && tecnicoGestion) {
 
     function filtrarTecnicosGestion() {
         const grupoSeleccionado = grupoGestion.value;
+        const valorActual = tecnicoGestion.value;
 
         tecnicoGestion.innerHTML = "";
 
@@ -71,7 +87,18 @@ if (grupoGestion && tecnicoGestion) {
                 tecnicoGestion.appendChild(opcion.cloneNode(true));
             }
         });
+
+        const existeValorActual = Array.from(tecnicoGestion.options).some(function(opcion) {
+            return opcion.value === valorActual;
+        });
+
+        if (existeValorActual) {
+            tecnicoGestion.value = valorActual;
+        } else {
+            tecnicoGestion.value = "";
+        }
     }
 
     grupoGestion.addEventListener("change", filtrarTecnicosGestion);
+    filtrarTecnicosGestion();
 }

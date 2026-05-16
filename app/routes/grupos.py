@@ -14,7 +14,10 @@ grupos_bp = Blueprint("grupos")
 def generar_codigo(prefijo):
     letras = string.ascii_uppercase
     numeros = string.digits
-    return prefijo + "-" + "".join(random.choices(letras + numeros, k=5))
+
+    return prefijo + "-" + "".join(
+        random.choices(letras + numeros, k=5)
+    )
 
 
 async def generar_codigo_unico(request, tabla, prefijo):
@@ -38,6 +41,9 @@ async def listar_grupos(request):
     if necesita_login(usuario):
         return redirect("/login")
 
+    if usuario["rol"] not in ("admin", "superadmin"):
+        return redirect("/")
+
     grupos = await fetch_all(
         request.app,
         """
@@ -48,8 +54,10 @@ async def listar_grupos(request):
             COUNT(DISTINCT s.id) AS total_semigrupos,
             COUNT(DISTINCT u.id) AS total_usuarios
         FROM grupos g
-        LEFT JOIN semigrupos s ON s.grupo_id = g.id
-        LEFT JOIN usuarios u ON u.grupo_id = g.id
+        LEFT JOIN semigrupos s 
+            ON s.grupo_id = g.id
+        LEFT JOIN usuarios u 
+            ON u.grupo_id = g.id
         GROUP BY g.id, g.codigo, g.nombre
         ORDER BY g.id ASC
         """
@@ -65,7 +73,8 @@ async def listar_grupos(request):
             s.grupo_id,
             g.nombre AS grupo
         FROM semigrupos s
-        INNER JOIN grupos g ON s.grupo_id = g.id
+        INNER JOIN grupos g 
+            ON s.grupo_id = g.id
         ORDER BY g.id ASC, s.id ASC
         """
     )
@@ -81,13 +90,34 @@ async def listar_grupos(request):
             u.rol,
             u.grupo_id,
             g.nombre AS grupo,
-            GROUP_CONCAT(DISTINCT s.nombre ORDER BY s.nombre SEPARATOR ', ') AS semigrupos
+            GROUP_CONCAT(
+                DISTINCT s.nombre
+                ORDER BY s.nombre
+                SEPARATOR ', '
+            ) AS semigrupos
+
         FROM usuarios u
-        LEFT JOIN grupos g ON u.grupo_id = g.id
-        LEFT JOIN incidencias i ON i.tecnico_id = u.id
-        LEFT JOIN semigrupos s ON i.semigrupo_id = s.id
+
+        LEFT JOIN grupos g 
+            ON u.grupo_id = g.id
+
+        LEFT JOIN incidencias i 
+            ON i.tecnico_id = u.id
+
+        LEFT JOIN semigrupos s 
+            ON i.semigrupo_id = s.id
+
         WHERE u.rol = 'tecnico'
-        GROUP BY u.id, u.nombre, u.username, u.email, u.rol, u.grupo_id, g.nombre
+
+        GROUP BY
+            u.id,
+            u.nombre,
+            u.username,
+            u.email,
+            u.rol,
+            u.grupo_id,
+            g.nombre
+
         ORDER BY u.nombre ASC
         """
     )
@@ -103,9 +133,14 @@ async def listar_grupos(request):
             u.rol,
             u.grupo_id,
             g.nombre AS grupo
+
         FROM usuarios u
-        LEFT JOIN grupos g ON u.grupo_id = g.id
+
+        LEFT JOIN grupos g 
+            ON u.grupo_id = g.id
+
         WHERE u.rol = 'admin'
+
         ORDER BY g.nombre ASC, u.nombre ASC
         """
     )
@@ -123,14 +158,35 @@ async def listar_grupos(request):
                 u.email,
                 u.grupo_id,
                 g.nombre AS grupo,
-                GROUP_CONCAT(DISTINCT s.nombre ORDER BY s.nombre SEPARATOR ', ') AS semigrupos
+
+                GROUP_CONCAT(
+                    DISTINCT s.nombre
+                    ORDER BY s.nombre
+                    SEPARATOR ', '
+                ) AS semigrupos
+
             FROM usuarios u
-            LEFT JOIN grupos g ON u.grupo_id = g.id
-            LEFT JOIN incidencias i ON i.tecnico_id = u.id
-            LEFT JOIN semigrupos s ON i.semigrupo_id = s.id
+
+            LEFT JOIN grupos g 
+                ON u.grupo_id = g.id
+
+            LEFT JOIN incidencias i 
+                ON i.tecnico_id = u.id
+
+            LEFT JOIN semigrupos s 
+                ON i.semigrupo_id = s.id
+
             WHERE u.rol = 'tecnico'
             AND u.grupo_id = %s
-            GROUP BY u.id, u.nombre, u.username, u.email, u.grupo_id, g.nombre
+
+            GROUP BY
+                u.id,
+                u.nombre,
+                u.username,
+                u.email,
+                u.grupo_id,
+                g.nombre
+
             ORDER BY u.nombre ASC
             """,
             (usuario["grupo_id"],)
@@ -155,7 +211,7 @@ async def crear_grupo(request):
     if necesita_login(usuario):
         return redirect("/login")
 
-    if usuario["rol"] != "admin":
+    if usuario["rol"] not in ("admin", "superadmin"):
         return redirect("/grupos")
 
     nombre = request.form.get("nombre", "").strip()
@@ -178,7 +234,11 @@ async def crear_grupo(request):
     if not tecnico:
         return redirect("/grupos")
 
-    codigo = await generar_codigo_unico(request, "grupos", "GRP")
+    codigo = await generar_codigo_unico(
+        request,
+        "grupos",
+        "GRP"
+    )
 
     nuevo_grupo_id = await execute_query(
         request.app,
@@ -210,7 +270,7 @@ async def crear_semigrupo(request):
     if necesita_login(usuario):
         return redirect("/login")
 
-    if usuario["rol"] != "admin":
+    if usuario["rol"] not in ("admin", "superadmin"):
         return redirect("/grupos")
 
     nombre = request.form.get("nombre", "").strip()
@@ -221,22 +281,39 @@ async def crear_semigrupo(request):
 
     grupo = await fetch_one(
         request.app,
-        "SELECT id FROM grupos WHERE id = %s",
+        """
+        SELECT id
+        FROM grupos
+        WHERE id = %s
+        """,
         (grupo_id,)
     )
 
     if not grupo:
         return redirect("/grupos")
 
-    codigo = await generar_codigo_unico(request, "semigrupos", "SEM")
+    codigo = await generar_codigo_unico(
+        request,
+        "semigrupos",
+        "SEM"
+    )
 
     await execute_query(
         request.app,
         """
-        INSERT INTO semigrupos (codigo, nombre, grupo_id)
+        INSERT INTO semigrupos
+        (
+            codigo,
+            nombre,
+            grupo_id
+        )
         VALUES (%s, %s, %s)
         """,
-        (codigo, nombre, grupo_id)
+        (
+            codigo,
+            nombre,
+            grupo_id
+        )
     )
 
     return redirect("/grupos")
@@ -249,7 +326,7 @@ async def ascender_tecnico(request):
     if necesita_login(usuario):
         return redirect("/login")
 
-    if usuario["rol"] != "admin":
+    if usuario["rol"] not in ("admin", "superadmin"):
         return redirect("/grupos")
 
     tecnico_id = request.form.get("tecnico_id")
@@ -257,17 +334,32 @@ async def ascender_tecnico(request):
     if not tecnico_id:
         return redirect("/grupos")
 
-    tecnico = await fetch_one(
-        request.app,
-        """
-        SELECT id
-        FROM usuarios
-        WHERE id = %s
-        AND rol = 'tecnico'
-        AND grupo_id = %s
-        """,
-        (tecnico_id, usuario["grupo_id"])
-    )
+    if usuario["rol"] == "admin":
+        tecnico = await fetch_one(
+            request.app,
+            """
+            SELECT id
+            FROM usuarios
+            WHERE id = %s
+            AND rol = 'tecnico'
+            AND grupo_id = %s
+            """,
+            (
+                tecnico_id,
+                usuario["grupo_id"]
+            )
+        )
+    else:
+        tecnico = await fetch_one(
+            request.app,
+            """
+            SELECT id
+            FROM usuarios
+            WHERE id = %s
+            AND rol = 'tecnico'
+            """,
+            (tecnico_id,)
+        )
 
     if not tecnico:
         return redirect("/grupos")

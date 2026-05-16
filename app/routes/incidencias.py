@@ -306,26 +306,23 @@ async def formulario_crear_incidencia(request):
         "SELECT * FROM semigrupos ORDER BY grupo_id, nombre"
     )
 
-    solicitantes = []
-
-    if usuario["rol"] in ("superadmin", "admin", "tecnico"):
-        solicitantes = await fetch_all(
-            request.app,
-            """
-            SELECT 
-                u.id,
-                u.nombre,
-                u.username,
-                u.email,
-                u.rol,
-                g.nombre AS grupo,
-                s.nombre AS semigrupo
-            FROM usuarios u
-            LEFT JOIN grupos g ON u.grupo_id = g.id
-            LEFT JOIN semigrupos s ON u.semigrupo_id = s.id
-            ORDER BY u.nombre ASC
-            """
-        )
+    solicitantes = await fetch_all(
+        request.app,
+        """
+        SELECT 
+            u.id,
+            u.nombre,
+            u.username,
+            u.rol,
+            g.nombre AS grupo,
+            s.nombre AS semigrupo
+        FROM usuarios u
+        LEFT JOIN grupos g ON u.grupo_id = g.id
+        LEFT JOIN semigrupos s ON u.semigrupo_id = s.id
+        WHERE u.rol = 'cliente'
+        ORDER BY u.nombre
+        """
+    )
 
     template = request.app.ctx.templates.get_template("crear_incidencia.html")
 
@@ -347,34 +344,20 @@ async def crear_incidencia(request):
     resumen = request.form.get("resumen", "").strip()
     descripcion = request.form.get("descripcion", "").strip()
     contacto = request.form.get("contacto", "").strip()
-    prioridad = request.form.get("prioridad")
+    prioridad = request.form.get("prioridad", "Media")
     grupo_id = request.form.get("grupo_id")
     semigrupo_id = request.form.get("semigrupo_id")
 
+    cliente_id = usuario["id"]
+
     if usuario["rol"] in ("superadmin", "admin", "tecnico"):
-        solicitante_texto = request.form.get("solicitante", "").strip()
+        solicitante = request.form.get("solicitante", "").strip()
 
-        try:
-            cliente_id = int(solicitante_texto.split(" - ")[0])
-        except:
-            return redirect("/crear-incidencia")
-
-        solicitante = await fetch_one(
-            request.app,
-            """
-            SELECT id, nombre
-            FROM usuarios
-            WHERE id = %s
-            """,
-            (cliente_id,)
-        )
-
-        if not solicitante:
-            return redirect("/crear-incidencia")
-
-    else:
-        cliente_id = usuario["id"]
-        solicitante = usuario
+        if solicitante:
+            try:
+                cliente_id = int(solicitante.split(" - ")[0])
+            except Exception:
+                cliente_id = usuario["id"]
 
     codigo = await generar_codigo_unico(request)
 
@@ -408,14 +391,6 @@ async def crear_incidencia(request):
         )
     )
 
-    if usuario["id"] == cliente_id:
-        comentario_inicial = "Incidencia creada por el usuario."
-    else:
-        comentario_inicial = (
-            f"Incidencia creada por {usuario['nombre']} "
-            f"en nombre de {solicitante['nombre']}."
-        )
-
     await execute_query(
         request.app,
         """
@@ -425,7 +400,7 @@ async def crear_incidencia(request):
         (
             nueva_id,
             usuario["id"],
-            comentario_inicial
+            "Incidencia creada."
         )
     )
 
@@ -494,6 +469,7 @@ async def incidencias_grupo(request):
     return html(template.render(
         usuario=usuario,
         incidencias=incidencias,
+        total=len(incidencias),
         titulo_pagina="Incidencias activas",
         enlaces_orden=crear_enlaces_orden(
             "/incidencias-grupo",
@@ -584,6 +560,7 @@ async def incidencias_archivadas(request):
     return html(template.render(
         usuario=usuario,
         incidencias=incidencias,
+        total=len(incidencias),
         titulo_pagina="Incidencias archivadas",
         enlaces_orden=crear_enlaces_orden(
             "/incidencias-archivadas",
@@ -679,13 +656,22 @@ async def detalle_incidencia(request, codigo):
 
     semigrupos = await fetch_all(
         request.app,
-        "SELECT * FROM semigrupos ORDER BY grupo_id, nombre"
+        """
+        SELECT id, codigo, nombre, grupo_id
+        FROM semigrupos
+        ORDER BY grupo_id, nombre
+        """
     )
 
     tecnicos = await fetch_all(
         request.app,
         """
-        SELECT id, nombre, grupo_id
+        SELECT 
+            id,
+            nombre,
+            username,
+            grupo_id,
+            semigrupo_id
         FROM usuarios
         WHERE rol = 'tecnico'
         ORDER BY grupo_id, nombre
@@ -719,7 +705,13 @@ async def guardar_cambios_incidencia(request, codigo):
     incidencia = await fetch_one(
         request.app,
         """
-        SELECT id, cliente_id, grupo_id, semigrupo_id, tecnico_id, estado
+        SELECT 
+            id,
+            cliente_id,
+            grupo_id,
+            semigrupo_id,
+            tecnico_id,
+            estado
         FROM incidencias
         WHERE codigo = %s
         """,
@@ -741,22 +733,57 @@ async def guardar_cambios_incidencia(request, codigo):
     if nuevo_tecnico_id == "":
         nuevo_tecnico_id = None
 
+    if nuevo_semigrupo_id == "":
+        nuevo_semigrupo_id = None
+
     if nuevo_estado in ESTADOS_CON_COMENTARIO_OBLIGATORIO and not comentario_usuario:
         return redirect(f"/incidencia/{codigo}")
 
-    semigrupo_correcto = await fetch_one(
-        request.app,
-        """
-        SELECT id
-        FROM semigrupos
-        WHERE id = %s
-        AND grupo_id = %s
-        """,
-        (nuevo_semigrupo_id, nuevo_grupo_id)
-    )
+    if nuevo_semigrupo_id:
+        semigrupo_correcto = await fetch_one(
+            request.app,
+            """
+            SELECT id
+            FROM semigrupos
+            WHERE id = %s
+            AND grupo_id = %s
+            """,
+            (nuevo_semigrupo_id, nuevo_grupo_id)
+        )
 
-    if not semigrupo_correcto:
-        return redirect(f"/incidencia/{codigo}")
+        if not semigrupo_correcto:
+            return redirect(f"/incidencia/{codigo}")
+    else:
+        semigrupo_actual_valido = await fetch_one(
+            request.app,
+            """
+            SELECT id
+            FROM semigrupos
+            WHERE id = %s
+            AND grupo_id = %s
+            """,
+            (incidencia["semigrupo_id"], nuevo_grupo_id)
+        )
+
+        if semigrupo_actual_valido:
+            nuevo_semigrupo_id = incidencia["semigrupo_id"]
+        else:
+            primer_semigrupo = await fetch_one(
+                request.app,
+                """
+                SELECT id
+                FROM semigrupos
+                WHERE grupo_id = %s
+                ORDER BY nombre
+                LIMIT 1
+                """,
+                (nuevo_grupo_id,)
+            )
+
+            if not primer_semigrupo:
+                return redirect(f"/incidencia/{codigo}")
+
+            nuevo_semigrupo_id = primer_semigrupo["id"]
 
     if nuevo_tecnico_id:
         tecnico_correcto = await fetch_one(
@@ -772,7 +799,7 @@ async def guardar_cambios_incidencia(request, codigo):
         )
 
         if not tecnico_correcto:
-            nuevo_tecnico_id = None
+            return redirect(f"/incidencia/{codigo}")
 
     await execute_query(
         request.app,

@@ -96,7 +96,7 @@ INSERT INTO semigrupos (codigo, nombre, grupo_id) VALUES
 ('SEM-015', 'Emergencias', 5);
 
 INSERT INTO usuarios (nombre, username, email, password, rol, grupo_id, semigrupo_id) VALUES
-('Super Admin', 'super.admin', 'superadmin@test.com', '1234', 'superadmin', NULL, NULL),
+('Gabriel Lungu', 'gabriel.lungu', 'gabriel.lungu@test.com', '1234', 'superadmin', NULL, NULL),
 
 ('Carlos Martin', 'carlos.martin', 'admin.info1@test.com', '1234', 'admin', 1, 1),
 ('Laura Gomez', 'laura.gomez', 'admin.info2@test.com', '1234', 'admin', 1, 1),
@@ -138,11 +138,26 @@ INSERT INTO usuarios (nombre, username, email, password, rol, grupo_id, semigrup
 ('Rocio Arias', 'rocio.arias', 'tec.seg4@test.com', '1234', 'tecnico', 5, 13),
 ('Diego Pastor', 'diego.pastor', 'tec.seg5@test.com', '1234', 'tecnico', 5, 14),
 
-('Cliente Uno', 'cliente.uno', 'cliente1@test.com', '1234', 'cliente', NULL, NULL),
-('Cliente Dos', 'cliente.dos', 'cliente2@test.com', '1234', 'cliente', NULL, NULL),
-('Cliente Tres', 'cliente.tres', 'cliente3@test.com', '1234', 'cliente', NULL, NULL),
-('Cliente Cuatro', 'cliente.cuatro', 'cliente4@test.com', '1234', 'cliente', NULL, NULL),
-('Cliente Cinco', 'cliente.cinco', 'cliente5@test.com', '1234', 'cliente', NULL, NULL);
+('Maria Sanchez - Cliente', 'maria.sanchez.cliente', 'maria.sanchez.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Alejandro Romero - Cliente', 'alejandro.romero.cliente', 'alejandro.romero.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Lucia Fernandez - Cliente', 'lucia.fernandez.cliente', 'lucia.fernandez.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Jorge Castillo - Cliente', 'jorge.castillo.cliente', 'jorge.castillo.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Paula Navarro - Cliente', 'paula.navarro.cliente', 'paula.navarro.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Sergio Dominguez - Cliente', 'sergio.dominguez.cliente', 'sergio.dominguez.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Elena Morales - Cliente', 'elena.morales.cliente', 'elena.morales.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Raul Sanchez - Cliente', 'raul.sanchez.cliente', 'raul.sanchez.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Irene Martin - Cliente', 'irene.martin.cliente', 'irene.martin.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Victor Garcia - Cliente', 'victor.garcia.cliente', 'victor.garcia.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Noelia Perez - Cliente', 'noelia.perez.cliente', 'noelia.perez.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Hugo Molina - Cliente', 'hugo.molina.cliente', 'hugo.molina.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Cristina Ramos - Cliente', 'cristina.ramos.cliente', 'cristina.ramos.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Adrian Vega - Cliente', 'adrian.vega.cliente', 'adrian.vega.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Clara Ruiz - Cliente', 'clara.ruiz.cliente', 'clara.ruiz.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('David Ortega - Cliente', 'david.ortega.cliente', 'david.ortega.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Marta Gil - Cliente', 'marta.gil.cliente', 'marta.gil.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Ivan Santos - Cliente', 'ivan.santos.cliente', 'ivan.santos.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Sara Medina - Cliente', 'sara.medina.cliente', 'sara.medina.cliente@test.com', '1234', 'cliente', NULL, NULL),
+('Oscar Leon - Cliente', 'oscar.leon.cliente', 'oscar.leon.cliente@test.com', '1234', 'cliente', NULL, NULL);
 
 INSERT INTO incidencias 
 (codigo, resumen, descripcion, contacto, estado, prioridad, cliente_id, grupo_id, semigrupo_id, tecnico_id)
@@ -151,10 +166,10 @@ VALUES
     'INC-A1B2C3',
     'No funciona el ordenador',
     'El equipo no enciende correctamente y el usuario no puede trabajar.',
-    'cliente1@test.com',
+    'maria.sanchez.cliente@test.com',
     'Asignado',
     'Alta',
-    (SELECT id FROM usuarios WHERE username = 'cliente.uno'),
+    (SELECT id FROM usuarios WHERE username = 'maria.sanchez.cliente'),
     1,
     1,
     (SELECT id FROM usuarios WHERE username = 'daniel.ruiz')
@@ -163,10 +178,10 @@ VALUES
     'INC-D4E5F6',
     'Problema con nomina',
     'El cliente indica que hay un error en la nomina mensual.',
-    'cliente2@test.com',
+    'alejandro.romero.cliente@test.com',
     'En curso',
     'Media',
-    (SELECT id FROM usuarios WHERE username = 'cliente.dos'),
+    (SELECT id FROM usuarios WHERE username = 'alejandro.romero.cliente'),
     2,
     5,
     (SELECT id FROM usuarios WHERE username = 'lucia.ramos')
@@ -175,10 +190,10 @@ VALUES
     'INC-G7H8I9',
     'Aire acondicionado roto',
     'La sala principal no tiene climatizacion.',
-    'cliente3@test.com',
+    'lucia.fernandez.cliente@test.com',
     'Pendiente',
     'Urgente',
-    (SELECT id FROM usuarios WHERE username = 'cliente.tres'),
+    (SELECT id FROM usuarios WHERE username = 'lucia.fernandez.cliente'),
     3,
     8,
     (SELECT id FROM usuarios WHERE username = 'sara.dominguez')
@@ -210,6 +225,10 @@ clientes_ordenados AS (
         ROW_NUMBER() OVER (ORDER BY id) AS numero_cliente
     FROM usuarios
     WHERE rol = 'cliente'
+),
+clientes_totales AS (
+    SELECT COUNT(*) AS total
+    FROM clientes_ordenados
 ),
 tecnicos_ordenados AS (
     SELECT
@@ -263,8 +282,9 @@ SELECT
 FROM semigrupos s
 INNER JOIN grupos g ON s.grupo_id = g.id
 CROSS JOIN numeros n
+CROSS JOIN clientes_totales ct
 INNER JOIN clientes_ordenados c 
-    ON c.numero_cliente = ((n.n - 1) % 5) + 1
+    ON c.numero_cliente = ((n.n - 1) % ct.total) + 1
 INNER JOIN tecnicos_ordenados t 
     ON t.grupo_id = g.id
     AND t.numero_tecnico = ((n.n - 1) % 5) + 1;
