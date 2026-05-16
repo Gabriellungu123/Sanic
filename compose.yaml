@@ -13,28 +13,27 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database.sql:/docker-entrypoint-initdb.d/database.sql
-    command: --default-authentication-plugin=mysql_native_password
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: incidencias_phpmyadmin
-    restart: always
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-    ports:
-      - "8080:80"
-    depends_on:
-      - mysql
 
   web:
     build: .
     container_name: incidencias_web
     restart: always
-    ports:
-      - "8000:8000"
     depends_on:
       - mysql
+    ports:
+      - "8000:8000"
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: incidencias_phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
 
 volumes:
   mysql_data:
