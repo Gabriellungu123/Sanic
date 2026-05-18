@@ -717,3 +717,20 @@ table a {
     margin-top: 8px;
     font-size: 13px;
 }
+.badge-aviso-comentario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #ff006e;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 0 14px rgba(255, 0, 110, 0.75);
+}
+
+.sin-aviso {
+    color: #666;
+}

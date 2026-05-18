@@ -102,6 +102,10 @@
                         </a>
                     </th>
 
+                    {% if usuario.rol != "cliente" %}
+                        <th>Aviso</th>
+                    {% endif %}
+
                     <th>Accion</th>
                 </tr>
             </thead>
@@ -122,6 +126,16 @@
                         <td>{{ incidencia.semigrupo }}</td>
                         <td>{{ incidencia.cliente }}</td>
                         <td>{{ incidencia.tecnico or "Sin asignar" }}</td>
+
+                        {% if usuario.rol != "cliente" %}
+                            <td>
+                                {% if incidencia.comentario_cliente_pendiente %}
+                                    <span class="badge-aviso-comentario">1</span>
+                                {% else %}
+                                    <span class="sin-aviso">-</span>
+                                {% endif %}
+                            </td>
+                        {% endif %}
 
                         <td>
                             <a class="btn-tabla" href="/incidencia/{{ incidencia.codigo }}">

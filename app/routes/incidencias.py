@@ -202,6 +202,7 @@ async def obtener_incidencias_para_usuario(request, usuario):
             i.contacto,
             i.estado,
             i.prioridad,
+            i.comentario_cliente_pendiente,
             i.fecha_creacion,
             i.fecha_actualizacion,
             g.nombre AS grupo,
@@ -432,6 +433,7 @@ async def incidencias_grupo(request):
             i.contacto,
             i.estado,
             i.prioridad,
+            i.comentario_cliente_pendiente,
             i.fecha_creacion,
             g.nombre AS grupo,
             s.nombre AS semigrupo,
@@ -501,6 +503,7 @@ async def incidencias_archivadas(request):
             i.resumen,
             i.estado,
             i.prioridad,
+            i.comentario_cliente_pendiente,
             g.nombre AS grupo,
             s.nombre AS semigrupo,
             cliente.nombre AS cliente,
@@ -604,6 +607,7 @@ async def detalle_incidencia(request, codigo):
             i.contacto,
             i.estado,
             i.prioridad,
+            i.comentario_cliente_pendiente,
             i.fecha_creacion,
             i.fecha_actualizacion,
             i.cliente_id,
@@ -629,6 +633,17 @@ async def detalle_incidencia(request, codigo):
 
     if not usuario_puede_ver_incidencia(usuario, incidencia):
         return redirect("/")
+
+    if usuario["rol"] in ("superadmin", "admin", "tecnico"):
+        await execute_query(
+            request.app,
+            """
+            UPDATE incidencias
+            SET comentario_cliente_pendiente = 0
+            WHERE id = %s
+            """,
+            (incidencia["id"],)
+        )
 
     comentarios = await fetch_all(
         request.app,
@@ -908,6 +923,17 @@ async def crear_comentario(request, codigo):
         """,
         (incidencia["id"], usuario["id"], comentario)
     )
+
+    if usuario["rol"] == "cliente":
+        await execute_query(
+            request.app,
+            """
+            UPDATE incidencias
+            SET comentario_cliente_pendiente = 1
+            WHERE id = %s
+            """,
+            (incidencia["id"],)
+        )
 
     return redirect(f"/incidencia/{codigo}")
 

@@ -25,29 +25,81 @@
             <thead>
                 <tr>
                     <th>
-                        <a href="{{ enlaces_orden.codigo }}">Codigo</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'codigo' %}activo{% endif %}" href="{{ enlaces_orden.codigo }}">
+                            Codigo
+                            {% if orden_actual == 'codigo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.resumen }}">Resumen</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'resumen' %}activo{% endif %}" href="{{ enlaces_orden.resumen }}">
+                            Resumen
+                            {% if orden_actual == 'resumen' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.estado }}">Estado</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'estado' %}activo{% endif %}" href="{{ enlaces_orden.estado }}">
+                            Estado
+                            {% if orden_actual == 'estado' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.prioridad }}">Prioridad</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'prioridad' %}activo{% endif %}" href="{{ enlaces_orden.prioridad }}">
+                            Prioridad
+                            {% if orden_actual == 'prioridad' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.grupo }}">Grupo</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'grupo' %}activo{% endif %}" href="{{ enlaces_orden.grupo }}">
+                            Grupo
+                            {% if orden_actual == 'grupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.semigrupo }}">Semigrupo</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'semigrupo' %}activo{% endif %}" href="{{ enlaces_orden.semigrupo }}">
+                            Semigrupo
+                            {% if orden_actual == 'semigrupo' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.cliente }}">Cliente</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'cliente' %}activo{% endif %}" href="{{ enlaces_orden.cliente }}">
+                            Cliente
+                            {% if orden_actual == 'cliente' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
                     <th>
-                        <a href="{{ enlaces_orden.tecnico }}">Tecnico</a>
+                        <a class="link-cabecera-tabla {% if orden_actual == 'tecnico' %}activo{% endif %}" href="{{ enlaces_orden.tecnico }}">
+                            Tecnico
+                            {% if orden_actual == 'tecnico' %}
+                                {% if direccion_actual == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
                     </th>
+
+                    {% if usuario.rol != "cliente" %}
+                        <th>Aviso</th>
+                    {% endif %}
+
                     <th>Accion</th>
                 </tr>
             </thead>
@@ -71,6 +123,16 @@
                         <td>{{ incidencia.semigrupo }}</td>
                         <td>{{ incidencia.cliente }}</td>
                         <td>{{ incidencia.tecnico or "Sin asignar" }}</td>
+
+                        {% if usuario.rol != "cliente" %}
+                            <td>
+                                {% if incidencia.comentario_cliente_pendiente %}
+                                    <span class="badge-aviso-comentario">1</span>
+                                {% else %}
+                                    <span class="sin-aviso">-</span>
+                                {% endif %}
+                            </td>
+                        {% endif %}
 
                         <td>
                             <a 

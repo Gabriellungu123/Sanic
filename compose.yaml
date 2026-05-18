@@ -14,15 +14,6 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database.sql:/docker-entrypoint-initdb.d/database.sql
 
-  web:
-    build: .
-    container_name: incidencias_web
-    restart: always
-    depends_on:
-      - mysql
-    ports:
-      - "8000:8000"
-
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: incidencias_phpmyadmin

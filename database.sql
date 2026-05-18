@@ -42,6 +42,8 @@ CREATE TABLE incidencias (
     estado ENUM('Asignado', 'En curso', 'Pendiente', 'Cerrado', 'Cancelado', 'Resuelta') DEFAULT 'Asignado',
     prioridad ENUM('Baja', 'Media', 'Alta', 'Urgente') DEFAULT 'Media',
 
+    comentario_cliente_pendiente TINYINT(1) NOT NULL DEFAULT 0,
+
     cliente_id INT NOT NULL,
     grupo_id INT NOT NULL,
     semigrupo_id INT NOT NULL,
